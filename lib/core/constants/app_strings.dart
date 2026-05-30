@@ -7,4 +7,5 @@ class AppStrings {
   static const landingRoute = '/';
   static const loginRoute = '/login';
   static const studentDashboardRoute = '/student/dashboard';
+  static const facultyDashboardRoute = '/faculty/dashboard';
 }

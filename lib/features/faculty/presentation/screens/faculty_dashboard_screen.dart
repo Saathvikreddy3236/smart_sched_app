@@ -4,17 +4,17 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/constants/app_strings.dart';
 import '../../../landing/presentation/widgets/landing_background.dart';
-import '../widgets/student_section_card.dart';
-import '../widgets/student_stat_pill.dart';
+import '../../../student/presentation/widgets/student_section_card.dart';
+import '../../../student/presentation/widgets/student_stat_pill.dart';
 
-class StudentDashboardScreen extends StatefulWidget {
-  const StudentDashboardScreen({super.key});
+class FacultyDashboardScreen extends StatefulWidget {
+  const FacultyDashboardScreen({super.key});
 
   @override
-  State<StudentDashboardScreen> createState() => _StudentDashboardScreenState();
+  State<FacultyDashboardScreen> createState() => _FacultyDashboardScreenState();
 }
 
-class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
+class _FacultyDashboardScreenState extends State<FacultyDashboardScreen> {
   int _selectedIndex = 0;
 
   @override
@@ -22,6 +22,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
     final width = MediaQuery.sizeOf(context).width;
     final isDesktop = width >= 1100;
     final isTablet = width >= 700 && width < 1100;
+    final isMobile = width < 700;
     final padding = isDesktop
         ? AppSpacing.xxxl
         : isTablet
@@ -34,19 +35,19 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
         selectedIndex: _selectedIndex,
         destinations: const [
           NavigationDestination(
-            icon: Icon(Icons.home_outlined),
-            selectedIcon: Icon(Icons.home_rounded),
-            label: 'Home',
+            icon: Icon(Icons.dashboard_outlined),
+            selectedIcon: Icon(Icons.dashboard_rounded),
+            label: 'Dashboard',
           ),
           NavigationDestination(
             icon: Icon(Icons.calendar_month_outlined),
             selectedIcon: Icon(Icons.calendar_month_rounded),
-            label: 'Timetable',
+            label: 'Schedule',
           ),
           NavigationDestination(
-            icon: Icon(Icons.notifications_none_rounded),
-            selectedIcon: Icon(Icons.notifications_rounded),
-            label: 'Notifications',
+            icon: Icon(Icons.assignment_outlined),
+            selectedIcon: Icon(Icons.assignment_rounded),
+            label: 'Requests',
           ),
           NavigationDestination(
             icon: Icon(Icons.person_outline_rounded),
@@ -59,7 +60,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
           if (index != 0) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
-                content: Text('This student tab will be built in a later phase.'),
+                content: Text('This faculty tab will be built in a later phase.'),
               ),
             );
           }
@@ -77,54 +78,52 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _DashboardHeader(isDesktop: isDesktop),
+                      _FacultyHeader(isDesktop: isDesktop),
                       const SizedBox(height: AppSpacing.xl),
                       if (isDesktop)
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Expanded(
-                              flex: 11,
-                              child: _StudentHeroCard(),
-                            ),
+                            const Expanded(flex: 11, child: _FacultyHeroCard()),
                             const SizedBox(width: AppSpacing.xl),
                             Expanded(
                               flex: 8,
                               child: Column(
                                 children: const [
-                                  _AttendanceCard(),
+                                  _FacultyNotificationsCard(),
                                   SizedBox(height: AppSpacing.lg),
-                                  _AnnouncementsCard(),
+                                  _RequestsOverviewCard(),
                                 ],
                               ),
                             ),
                           ],
                         )
                       else ...[
-                        const _StudentHeroCard(),
+                        const _FacultyHeroCard(),
                         const SizedBox(height: AppSpacing.lg),
-                        const _AttendanceCard(),
+                        const _FacultyNotificationsCard(),
                         const SizedBox(height: AppSpacing.lg),
-                        const _AnnouncementsCard(),
+                        const _RequestsOverviewCard(),
                       ],
                       const SizedBox(height: AppSpacing.xl),
                       if (isDesktop || isTablet)
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: const [
-                            Expanded(flex: 6, child: _TodaysClassesCard()),
+                            Expanded(flex: 6, child: _TodaysFacultyClassesCard()),
                             SizedBox(width: AppSpacing.lg),
-                            Expanded(flex: 5, child: _UpcomingClassesCard()),
+                            Expanded(flex: 5, child: _UpcomingLecturesCard()),
                           ],
                         )
                       else
                         const Column(
                           children: [
-                            _TodaysClassesCard(),
+                            _TodaysFacultyClassesCard(),
                             SizedBox(height: AppSpacing.lg),
-                            _UpcomingClassesCard(),
+                            _UpcomingLecturesCard(),
                           ],
                         ),
+                      if (isMobile) const SizedBox(height: AppSpacing.sm),
                     ],
                   ),
                 ),
@@ -137,8 +136,8 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
   }
 }
 
-class _DashboardHeader extends StatelessWidget {
-  const _DashboardHeader({required this.isDesktop});
+class _FacultyHeader extends StatelessWidget {
+  const _FacultyHeader({required this.isDesktop});
 
   final bool isDesktop;
 
@@ -153,14 +152,14 @@ class _DashboardHeader extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Student Workspace',
+                'Faculty Workspace',
                 style: theme.textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.w900,
                 ),
               ),
               const SizedBox(height: 6),
               Text(
-                'Track classes, attendance, and announcements at a glance.',
+                'Manage lectures, teaching load, and academic requests from one place.',
                 style: theme.textTheme.bodyLarge?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
@@ -174,7 +173,7 @@ class _DashboardHeader extends StatelessWidget {
             width: 280,
             child: TextField(
               decoration: InputDecoration(
-                hintText: 'Search subjects or rooms',
+                hintText: 'Search course or batch',
                 prefixIcon: const Icon(Icons.search_rounded),
                 filled: true,
                 fillColor: theme.colorScheme.surface.withValues(alpha: 0.8),
@@ -192,7 +191,7 @@ class _DashboardHeader extends StatelessWidget {
           radius: 24,
           backgroundColor: theme.colorScheme.primary.withValues(alpha: 0.14),
           child: Text(
-            'AS',
+            'RM',
             style: theme.textTheme.titleMedium?.copyWith(
               color: theme.colorScheme.primary,
               fontWeight: FontWeight.w800,
@@ -204,8 +203,8 @@ class _DashboardHeader extends StatelessWidget {
   }
 }
 
-class _StudentHeroCard extends StatelessWidget {
-  const _StudentHeroCard();
+class _FacultyHeroCard extends StatelessWidget {
+  const _FacultyHeroCard();
 
   @override
   Widget build(BuildContext context) {
@@ -224,7 +223,7 @@ class _StudentHeroCard extends StatelessWidget {
               borderRadius: BorderRadius.circular(999),
             ),
             child: Text(
-              'Today at a glance',
+              'Teaching snapshot',
               style: theme.textTheme.labelLarge?.copyWith(
                 color: theme.colorScheme.primary,
                 fontWeight: FontWeight.w700,
@@ -233,7 +232,7 @@ class _StudentHeroCard extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.lg),
           Text(
-            'Good morning, Aarya.',
+            'Welcome back, Dr. Mehta.',
             style: theme.textTheme.displaySmall?.copyWith(
               fontWeight: FontWeight.w900,
               letterSpacing: -1.4,
@@ -242,7 +241,7 @@ class _StudentHeroCard extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.md),
           Text(
-            'You have 4 classes today, 1 lab coming up, and no schedule conflicts.',
+            'You have 3 lectures scheduled today, 12 total teaching hours this week, and 2 requests awaiting action.',
             style: theme.textTheme.titleMedium?.copyWith(
               color: theme.colorScheme.onSurfaceVariant,
               height: 1.5,
@@ -255,19 +254,19 @@ class _StudentHeroCard extends StatelessWidget {
               children: [
                 StudentStatPill(
                   label: 'Classes Today',
-                  value: '04',
+                  value: '03',
                   color: Color(0xFF0F766E),
                 ),
                 SizedBox(height: AppSpacing.md),
                 StudentStatPill(
-                  label: 'Upcoming Lab',
-                  value: '1:30 PM',
+                  label: 'Weekly Hours',
+                  value: '12 hrs',
                   color: Color(0xFF0284C7),
                 ),
                 SizedBox(height: AppSpacing.md),
                 StudentStatPill(
-                  label: 'Free Time',
-                  value: '2 hrs',
+                  label: 'Next Lecture',
+                  value: '10:30 AM',
                   color: Color(0xFFF59E0B),
                 ),
               ],
@@ -278,23 +277,23 @@ class _StudentHeroCard extends StatelessWidget {
                 Expanded(
                   child: StudentStatPill(
                     label: 'Classes Today',
-                    value: '04',
+                    value: '03',
                     color: Color(0xFF0F766E),
                   ),
                 ),
                 SizedBox(width: AppSpacing.md),
                 Expanded(
                   child: StudentStatPill(
-                    label: 'Upcoming Lab',
-                    value: '1:30 PM',
+                    label: 'Weekly Hours',
+                    value: '12 hrs',
                     color: Color(0xFF0284C7),
                   ),
                 ),
                 SizedBox(width: AppSpacing.md),
                 Expanded(
                   child: StudentStatPill(
-                    label: 'Free Time',
-                    value: '2 hrs',
+                    label: 'Next Lecture',
+                    value: '10:30 AM',
                     color: Color(0xFFF59E0B),
                   ),
                 ),
@@ -307,15 +306,15 @@ class _StudentHeroCard extends StatelessWidget {
             children: const [
               Chip(
                 avatar: Icon(Icons.circle, size: 12, color: Color(0xFF16A34A)),
-                label: Text('No class clashes'),
+                label: Text('No faculty overlaps'),
               ),
               Chip(
-                avatar: Icon(Icons.location_on_rounded, size: 16),
-                label: Text('Next room: Lab 204'),
+                avatar: Icon(Icons.groups_rounded, size: 16),
+                label: Text('Batch: CSE Semester 5'),
               ),
               Chip(
-                avatar: Icon(Icons.person_rounded, size: 16),
-                label: Text('Advisor: Dr. Mehta'),
+                avatar: Icon(Icons.meeting_room_rounded, size: 16),
+                label: Text('Next room: Block B-301'),
               ),
             ],
           ),
@@ -325,8 +324,8 @@ class _StudentHeroCard extends StatelessWidget {
   }
 }
 
-class _AttendanceCard extends StatelessWidget {
-  const _AttendanceCard();
+class _FacultyNotificationsCard extends StatelessWidget {
+  const _FacultyNotificationsCard();
 
   @override
   Widget build(BuildContext context) {
@@ -337,68 +336,23 @@ class _AttendanceCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Attendance',
-            style: theme.textTheme.titleLarge?.copyWith(
-              fontWeight: FontWeight.w800,
-            ),
-          ),
-          const SizedBox(height: AppSpacing.md),
-          Text(
-            '86%',
-            style: theme.textTheme.displaySmall?.copyWith(
-              fontWeight: FontWeight.w900,
-              color: theme.colorScheme.primary,
-            ),
-          ),
-          const SizedBox(height: AppSpacing.sm),
-          Text(
-            'Above department minimum. Keep this pace to stay exam-eligible.',
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
-              height: 1.5,
-            ),
-          ),
-          const SizedBox(height: AppSpacing.lg),
-          const LinearProgressIndicator(
-            value: 0.86,
-            minHeight: 12,
-            borderRadius: BorderRadius.all(Radius.circular(999)),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _AnnouncementsCard extends StatelessWidget {
-  const _AnnouncementsCard();
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return StudentSectionCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Announcements',
+            'Notifications',
             style: theme.textTheme.titleLarge?.copyWith(
               fontWeight: FontWeight.w800,
             ),
           ),
           const SizedBox(height: AppSpacing.md),
           ...const [
-            _AnnouncementTile(
-              title: 'Algorithms class moved to Room A-302',
-              subtitle: 'Updated 15 mins ago',
+            _FacultyNoticeTile(
+              title: 'Room changed for Compiler Design lecture',
+              subtitle: 'Now in Block B-301',
               color: Color(0xFF0284C7),
             ),
             SizedBox(height: AppSpacing.md),
-            _AnnouncementTile(
-              title: 'Data Structures quiz on Friday at 10:00 AM',
-              subtitle: 'Exam cell notice',
-              color: Color(0xFFF59E0B),
+            _FacultyNoticeTile(
+              title: 'Department meeting at 4:30 PM',
+              subtitle: 'Conference Hall',
+              color: Color(0xFF7C3AED),
             ),
           ],
         ],
@@ -407,8 +361,143 @@ class _AnnouncementsCard extends StatelessWidget {
   }
 }
 
-class _AnnouncementTile extends StatelessWidget {
-  const _AnnouncementTile({
+class _RequestsOverviewCard extends StatelessWidget {
+  const _RequestsOverviewCard();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return StudentSectionCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Requests Overview',
+            style: theme.textTheme.titleLarge?.copyWith(
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+          const SizedBox(height: AppSpacing.lg),
+          ...const [
+            _RequestStatusTile(
+              label: 'Leave request',
+              status: 'Pending approval',
+              accent: Color(0xFFF59E0B),
+            ),
+            SizedBox(height: AppSpacing.md),
+            _RequestStatusTile(
+              label: 'Availability update',
+              status: 'Submitted',
+              accent: Color(0xFF0F766E),
+            ),
+            SizedBox(height: AppSpacing.md),
+            _RequestStatusTile(
+              label: 'Substitution request',
+              status: 'Needs confirmation',
+              accent: Color(0xFFF97316),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _TodaysFacultyClassesCard extends StatelessWidget {
+  const _TodaysFacultyClassesCard();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return StudentSectionCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            "Today's Classes",
+            style: theme.textTheme.titleLarge?.copyWith(
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+          const SizedBox(height: AppSpacing.lg),
+          ...const [
+            _FacultyClassTile(
+              course: 'Compiler Design',
+              batch: 'CSE Sem 5',
+              room: 'Block B-301',
+              time: '10:30 - 11:30',
+              accent: Color(0xFF0F766E),
+            ),
+            SizedBox(height: AppSpacing.md),
+            _FacultyClassTile(
+              course: 'Operating Systems',
+              batch: 'IT Sem 5',
+              room: 'Lab 204',
+              time: '01:00 - 03:00',
+              accent: Color(0xFF0284C7),
+            ),
+            SizedBox(height: AppSpacing.md),
+            _FacultyClassTile(
+              course: 'Project Mentoring',
+              batch: 'Final Year',
+              room: 'Seminar Hall',
+              time: '03:30 - 04:30',
+              accent: Color(0xFFF59E0B),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _UpcomingLecturesCard extends StatelessWidget {
+  const _UpcomingLecturesCard();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return StudentSectionCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Upcoming Lectures',
+            style: theme.textTheme.titleLarge?.copyWith(
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+          const SizedBox(height: AppSpacing.lg),
+          ...const [
+            _FacultyAgendaTile(
+              day: 'Tomorrow',
+              title: 'Database Management Systems',
+              subtitle: '09:00 AM • Room A-204',
+            ),
+            SizedBox(height: AppSpacing.md),
+            _FacultyAgendaTile(
+              day: 'Thursday',
+              title: 'Curriculum Review Session',
+              subtitle: '11:30 AM • Meeting Room 2',
+            ),
+            SizedBox(height: AppSpacing.md),
+            _FacultyAgendaTile(
+              day: 'Friday',
+              title: 'Internal Viva',
+              subtitle: '02:00 PM • Innovation Lab',
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _FacultyNoticeTile extends StatelessWidget {
+  const _FacultyNoticeTile({
     required this.title,
     required this.subtitle,
     required this.color,
@@ -467,109 +556,62 @@ class _AnnouncementTile extends StatelessWidget {
   }
 }
 
-class _TodaysClassesCard extends StatelessWidget {
-  const _TodaysClassesCard();
+class _RequestStatusTile extends StatelessWidget {
+  const _RequestStatusTile({
+    required this.label,
+    required this.status,
+    required this.accent,
+  });
+
+  final String label;
+  final String status;
+  final Color accent;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return StudentSectionCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+    return Container(
+      padding: const EdgeInsets.all(AppSpacing.md),
+      decoration: BoxDecoration(
+        color: accent.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(18),
+      ),
+      child: Row(
         children: [
+          Expanded(
+            child: Text(
+              label,
+              style: theme.textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+          const SizedBox(width: AppSpacing.md),
           Text(
-            "Today's Classes",
-            style: theme.textTheme.titleLarge?.copyWith(
+            status,
+            style: theme.textTheme.labelLarge?.copyWith(
+              color: accent,
               fontWeight: FontWeight.w800,
             ),
           ),
-          const SizedBox(height: AppSpacing.lg),
-          ...const [
-            _ClassTile(
-              subject: 'Database Systems',
-              faculty: 'Prof. Sharma',
-              room: 'Room B-201',
-              time: '09:00 - 10:00',
-              accent: Color(0xFF0F766E),
-            ),
-            SizedBox(height: AppSpacing.md),
-            _ClassTile(
-              subject: 'Operating Systems Lab',
-              faculty: 'Dr. Iyer',
-              room: 'Lab 204',
-              time: '01:30 - 03:30',
-              accent: Color(0xFF0284C7),
-            ),
-            SizedBox(height: AppSpacing.md),
-            _ClassTile(
-              subject: 'Software Engineering',
-              faculty: 'Prof. Nair',
-              room: 'Room C-103',
-              time: '04:00 - 05:00',
-              accent: Color(0xFFF59E0B),
-            ),
-          ],
         ],
       ),
     );
   }
 }
 
-class _UpcomingClassesCard extends StatelessWidget {
-  const _UpcomingClassesCard();
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return StudentSectionCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Upcoming',
-            style: theme.textTheme.titleLarge?.copyWith(
-              fontWeight: FontWeight.w800,
-            ),
-          ),
-          const SizedBox(height: AppSpacing.lg),
-          ...const [
-            _MiniAgendaTile(
-              day: 'Tomorrow',
-              title: 'Computer Networks',
-              subtitle: '08:30 AM • Room D-105',
-            ),
-            SizedBox(height: AppSpacing.md),
-            _MiniAgendaTile(
-              day: 'Tomorrow',
-              title: 'Project Review',
-              subtitle: '02:00 PM • Seminar Hall',
-            ),
-            SizedBox(height: AppSpacing.md),
-            _MiniAgendaTile(
-              day: 'Friday',
-              title: 'Data Structures Quiz',
-              subtitle: '10:00 AM • Block A',
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-}
-
-class _ClassTile extends StatelessWidget {
-  const _ClassTile({
-    required this.subject,
-    required this.faculty,
+class _FacultyClassTile extends StatelessWidget {
+  const _FacultyClassTile({
+    required this.course,
+    required this.batch,
     required this.room,
     required this.time,
     required this.accent,
   });
 
-  final String subject;
-  final String faculty;
+  final String course;
+  final String batch;
   final String room;
   final String time;
   final Color accent;
@@ -600,14 +642,14 @@ class _ClassTile extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  subject,
+                  course,
                   style: theme.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w800,
                   ),
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  '$faculty • $room',
+                  '$batch • $room',
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: theme.colorScheme.onSurfaceVariant,
                   ),
@@ -628,8 +670,8 @@ class _ClassTile extends StatelessWidget {
   }
 }
 
-class _MiniAgendaTile extends StatelessWidget {
-  const _MiniAgendaTile({
+class _FacultyAgendaTile extends StatelessWidget {
+  const _FacultyAgendaTile({
     required this.day,
     required this.title,
     required this.subtitle,

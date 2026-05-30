@@ -168,13 +168,7 @@ class _LoginFormCard extends StatelessWidget {
                     return;
                   }
 
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text(
-                        'Faculty dashboard will be added in the next phase.',
-                      ),
-                    ),
-                  );
+                  context.go(AppStrings.facultyDashboardRoute);
                 },
                 icon: const Icon(Icons.login_rounded),
                 label: const Text('Login'),
