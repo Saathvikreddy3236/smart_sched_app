@@ -36,4 +36,23 @@ void main() {
     expect(find.text('Admin'), findsNothing);
     expect(find.text('Forgot Password?'), findsOneWidget);
   });
+
+  testWidgets('student login opens dashboard', (tester) async {
+    await tester.pumpWidget(
+      const ProviderScope(
+        child: SmartSchedulingApp(),
+      ),
+    );
+
+    await tester.tap(find.text('Login').first);
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.widgetWithText(FilledButton, 'Login'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Student Workspace'), findsOneWidget);
+    expect(find.text("Today's Classes"), findsOneWidget);
+    expect(find.text('Upcoming'), findsOneWidget);
+    expect(find.text('Announcements'), findsOneWidget);
+  });
 }

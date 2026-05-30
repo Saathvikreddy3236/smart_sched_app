@@ -162,7 +162,20 @@ class _LoginFormCard extends StatelessWidget {
             SizedBox(
               width: double.infinity,
               child: FilledButton.icon(
-                onPressed: () {},
+                onPressed: () {
+                  if (selectedRole == 'Student') {
+                    context.go(AppStrings.studentDashboardRoute);
+                    return;
+                  }
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text(
+                        'Faculty dashboard will be added in the next phase.',
+                      ),
+                    ),
+                  );
+                },
                 icon: const Icon(Icons.login_rounded),
                 label: const Text('Login'),
               ),

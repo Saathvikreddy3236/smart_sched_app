@@ -6,4 +6,5 @@ class AppStrings {
       'AI-Powered Timetable Management for Students, Faculty and Administrators';
   static const landingRoute = '/';
   static const loginRoute = '/login';
+  static const studentDashboardRoute = '/student/dashboard';
 }
