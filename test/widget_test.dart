@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -5,15 +6,13 @@ import 'package:sas/app.dart';
 
 void main() {
   testWidgets('landing page renders primary messaging', (tester) async {
-    await tester.pumpWidget(
-      const ProviderScope(
-        child: SmartSchedulingApp(),
-      ),
-    );
+    await tester.pumpWidget(const ProviderScope(child: SmartSchedulingApp()));
 
-    expect(find.text('Smart Academic Scheduling Platform'), findsOneWidget);
+    expect(find.text('Smart Sched'), findsWidgets);
     expect(
-      find.text('AI-Powered Timetable Management for Students, Faculty and Administrators'),
+      find.text(
+        'A clean timetable companion for students and faculty to view schedules, room changes, and academic alerts.',
+      ),
       findsOneWidget,
     );
     expect(find.text('Get Started'), findsWidgets);
@@ -21,16 +20,12 @@ void main() {
   });
 
   testWidgets('login page route renders auth form', (tester) async {
-    await tester.pumpWidget(
-      const ProviderScope(
-        child: SmartSchedulingApp(),
-      ),
-    );
+    await tester.pumpWidget(const ProviderScope(child: SmartSchedulingApp()));
 
     await tester.tap(find.text('Login').first);
     await tester.pumpAndSettle();
 
-    expect(find.text('Welcome back to smarter campus scheduling'), findsOneWidget);
+    expect(find.text('Access your timetable'), findsOneWidget);
     expect(find.text('Student'), findsOneWidget);
     expect(find.text('Faculty'), findsOneWidget);
     expect(find.text('Admin'), findsNothing);
@@ -38,30 +33,24 @@ void main() {
   });
 
   testWidgets('student login opens dashboard', (tester) async {
-    await tester.pumpWidget(
-      const ProviderScope(
-        child: SmartSchedulingApp(),
-      ),
-    );
+    await tester.pumpWidget(const ProviderScope(child: SmartSchedulingApp()));
 
     await tester.tap(find.text('Login').first);
     await tester.pumpAndSettle();
 
-    await tester.tap(find.widgetWithText(FilledButton, 'Login'));
+    final loginButton = find.widgetWithText(FilledButton, 'Login');
+    await tester.ensureVisible(loginButton);
+    await tester.tap(loginButton);
     await tester.pumpAndSettle();
 
-    expect(find.text('Student Workspace'), findsOneWidget);
+    expect(find.text('My Timetable'), findsOneWidget);
     expect(find.text("Today's Classes"), findsOneWidget);
     expect(find.text('Upcoming'), findsOneWidget);
     expect(find.text('Announcements'), findsOneWidget);
   });
 
   testWidgets('faculty login opens dashboard', (tester) async {
-    await tester.pumpWidget(
-      const ProviderScope(
-        child: SmartSchedulingApp(),
-      ),
-    );
+    await tester.pumpWidget(const ProviderScope(child: SmartSchedulingApp()));
 
     await tester.tap(find.text('Login').first);
     await tester.pumpAndSettle();
@@ -69,38 +58,42 @@ void main() {
     await tester.tap(find.text('Faculty'));
     await tester.pumpAndSettle();
 
-    await tester.tap(find.widgetWithText(FilledButton, 'Login'));
+    final loginButton = find.widgetWithText(FilledButton, 'Login');
+    await tester.ensureVisible(loginButton);
+    await tester.tap(loginButton);
     await tester.pumpAndSettle();
 
-    expect(find.text('Faculty Workspace'), findsOneWidget);
+    expect(find.text('Teaching Timetable'), findsOneWidget);
     expect(find.text("Today's Classes"), findsOneWidget);
     expect(find.text('Upcoming Lectures'), findsOneWidget);
     expect(find.text('Requests Overview'), findsOneWidget);
   });
 
-  testWidgets('student and faculty dashboards show logout action', (tester) async {
-    await tester.pumpWidget(
-      const ProviderScope(
-        child: SmartSchedulingApp(),
-      ),
-    );
+  testWidgets('student and faculty dashboards show logout action', (
+    tester,
+  ) async {
+    await tester.pumpWidget(const ProviderScope(child: SmartSchedulingApp()));
 
     await tester.tap(find.text('Login').first);
     await tester.pumpAndSettle();
-    await tester.tap(find.widgetWithText(FilledButton, 'Login'));
+    var loginButton = find.widgetWithText(FilledButton, 'Login');
+    await tester.ensureVisible(loginButton);
+    await tester.tap(loginButton);
     await tester.pumpAndSettle();
-    expect(find.text('Logout'), findsOneWidget);
+    expect(find.byTooltip('Logout'), findsOneWidget);
 
-    await tester.tap(find.text('Logout'));
+    await tester.tap(find.byTooltip('Logout'));
     await tester.pumpAndSettle();
-    expect(find.text('Smart Academic Scheduling Platform'), findsOneWidget);
+    expect(find.text('Smart Sched'), findsWidgets);
 
     await tester.tap(find.text('Login').first);
     await tester.pumpAndSettle();
     await tester.tap(find.text('Faculty'));
     await tester.pumpAndSettle();
-    await tester.tap(find.widgetWithText(FilledButton, 'Login'));
+    loginButton = find.widgetWithText(FilledButton, 'Login');
+    await tester.ensureVisible(loginButton);
+    await tester.tap(loginButton);
     await tester.pumpAndSettle();
-    expect(find.text('Logout'), findsOneWidget);
+    expect(find.byTooltip('Logout'), findsOneWidget);
   });
 }

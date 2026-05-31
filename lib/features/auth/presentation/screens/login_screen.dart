@@ -31,9 +31,9 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return AuthShell(
-      title: 'Welcome back to smarter campus scheduling',
+      title: 'Access your timetable',
       subtitle:
-          'Sign in to access personalized timetables, role-based workflows, and live academic updates across your institution.',
+          'Choose your role and sign in to view classes, rooms, attendance, and schedule alerts.',
       sidePanel: const _LoginBenefitsPanel(),
       formCard: _LoginFormCard(
         emailController: _emailController,
@@ -71,16 +71,20 @@ class _LoginFormCard extends StatelessWidget {
     final theme = Theme.of(context);
 
     return TweenAnimationBuilder<double>(
-      duration: const Duration(milliseconds: 700),
-      curve: Curves.easeOutCubic,
+      duration: const Duration(milliseconds: 760),
+      curve: Curves.easeOutExpo,
       tween: Tween(begin: 0.96, end: 1),
       builder: (context, value, child) {
         return Transform.scale(scale: value, child: child);
       },
       child: Container(
-        padding: const EdgeInsets.all(AppSpacing.xl),
+        padding: EdgeInsets.all(
+          MediaQuery.sizeOf(context).width < 420
+              ? AppSpacing.lg
+              : AppSpacing.xl,
+        ),
         decoration: BoxDecoration(
-          color: theme.cardColor,
+          color: theme.cardColor.withValues(alpha: 0.92),
           borderRadius: BorderRadius.circular(32),
           border: Border.all(
             color: theme.colorScheme.outlineVariant.withValues(alpha: 0.35),
@@ -88,8 +92,8 @@ class _LoginFormCard extends StatelessWidget {
           boxShadow: [
             BoxShadow(
               color: theme.colorScheme.shadow.withValues(alpha: 0.1),
-              blurRadius: 40,
-              offset: const Offset(0, 24),
+              blurRadius: 44,
+              offset: const Offset(0, 26),
             ),
           ],
         ),
@@ -104,7 +108,7 @@ class _LoginFormCard extends StatelessWidget {
             ),
             const SizedBox(height: AppSpacing.sm),
             Text(
-              'Choose your role and continue to the platform workspace.',
+              'Continue to your student or faculty timetable workspace.',
               style: theme.textTheme.bodyLarge?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
               ),
@@ -129,7 +133,7 @@ class _LoginFormCard extends StatelessWidget {
               decoration: const InputDecoration(
                 labelText: 'Email',
                 hintText: 'name@university.edu',
-                prefixIcon: Icon(Icons.mail_outline_rounded),
+                prefixIcon: Icon(Icons.alternate_email_rounded),
               ),
             ),
             const SizedBox(height: AppSpacing.md),
@@ -139,7 +143,7 @@ class _LoginFormCard extends StatelessWidget {
               decoration: InputDecoration(
                 labelText: 'Password',
                 hintText: 'Enter your password',
-                prefixIcon: const Icon(Icons.lock_outline_rounded),
+                prefixIcon: const Icon(Icons.enhanced_encryption_rounded),
                 suffixIcon: IconButton(
                   onPressed: onTogglePassword,
                   icon: Icon(
@@ -170,7 +174,7 @@ class _LoginFormCard extends StatelessWidget {
 
                   context.go(AppStrings.facultyDashboardRoute);
                 },
-                icon: const Icon(Icons.login_rounded),
+                icon: const Icon(Icons.arrow_forward_rounded),
                 label: const Text('Login'),
               ),
             ),
@@ -179,7 +183,7 @@ class _LoginFormCard extends StatelessWidget {
               width: double.infinity,
               child: OutlinedButton.icon(
                 onPressed: () => context.go(AppStrings.landingRoute),
-                icon: const Icon(Icons.arrow_back_rounded),
+                icon: const Icon(Icons.keyboard_backspace_rounded),
                 label: const Text('Back to Landing Page'),
               ),
             ),
@@ -205,7 +209,7 @@ class _LoginBenefitsPanel extends StatelessWidget {
           padding: const EdgeInsets.all(AppSpacing.lg),
           decoration: BoxDecoration(
             color: theme.colorScheme.surface.withValues(alpha: 0.78),
-            borderRadius: BorderRadius.circular(28),
+            borderRadius: BorderRadius.circular(30),
             border: Border.all(
               color: theme.colorScheme.outlineVariant.withValues(alpha: 0.35),
             ),
@@ -213,43 +217,67 @@ class _LoginBenefitsPanel extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: _StatTile(
-                      title: 'Active sessions',
-                      value: '2,450',
-                      accent: const Color(0xFF0F766E),
-                    ),
-                  ),
-                  const SizedBox(width: AppSpacing.md),
-                  Expanded(
-                    child: _StatTile(
-                      title: 'Alerts resolved',
-                      value: '96%',
-                      accent: const Color(0xFF0284C7),
-                    ),
-                  ),
-                ],
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final stackStats = constraints.maxWidth < 360;
+
+                  if (stackStats) {
+                    return const Column(
+                      children: [
+                        _StatTile(
+                          title: 'Active sessions',
+                          value: '2 roles',
+                          accent: Color(0xFF3657FF),
+                        ),
+                        SizedBox(height: AppSpacing.md),
+                        _StatTile(
+                          title: 'Timetable access',
+                          value: 'Live',
+                          accent: Color(0xFF00A88F),
+                        ),
+                      ],
+                    );
+                  }
+
+                  return const Row(
+                    children: [
+                      Expanded(
+                        child: _StatTile(
+                          title: 'Active sessions',
+                          value: '2 roles',
+                          accent: Color(0xFF0F766E),
+                        ),
+                      ),
+                      SizedBox(width: AppSpacing.md),
+                      Expanded(
+                        child: _StatTile(
+                          title: 'Timetable access',
+                          value: 'Live',
+                          accent: Color(0xFF0284C7),
+                        ),
+                      ),
+                    ],
+                  );
+                },
               ),
               const SizedBox(height: AppSpacing.lg),
               ...const [
                 _BenefitRow(
-                  icon: Icons.schedule_rounded,
-                  title: 'Unified schedules',
+                  icon: Icons.view_timeline_rounded,
+                  title: 'Personal schedules',
                   subtitle:
-                      'Students, faculty, and admins see the right timetable instantly.',
+                      'Students and faculty see the timetable that belongs to their role.',
                 ),
                 SizedBox(height: AppSpacing.md),
                 _BenefitRow(
-                  icon: Icons.sync_problem_rounded,
-                  title: 'Conflict visibility',
+                  icon: Icons.door_sliding_rounded,
+                  title: 'Room clarity',
                   subtitle:
-                      'Overlaps and room issues surface before they become campus disruptions.',
+                      'Classroom changes and lecture locations stay easy to find.',
                 ),
                 SizedBox(height: AppSpacing.md),
                 _BenefitRow(
-                  icon: Icons.notifications_active_rounded,
+                  icon: Icons.campaign_rounded,
                   title: 'Live communication',
                   subtitle:
                       'Timetable changes, exam alerts, and cancellations stay in sync.',
@@ -283,7 +311,7 @@ class _StatTile extends StatelessWidget {
       padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
         color: accent.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(24),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -331,7 +359,7 @@ class _BenefitRow extends StatelessWidget {
           height: 48,
           decoration: BoxDecoration(
             color: theme.colorScheme.primary.withValues(alpha: 0.12),
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(18),
           ),
           child: Icon(icon, color: theme.colorScheme.primary),
         ),

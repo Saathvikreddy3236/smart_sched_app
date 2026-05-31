@@ -48,114 +48,133 @@ class _LandingPageState extends State<LandingPage> {
     final horizontalPadding = isDesktop
         ? AppSpacing.xxxl
         : isTablet
-            ? AppSpacing.xl
-            : AppSpacing.lg;
+        ? AppSpacing.xl
+        : AppSpacing.lg;
     final previewHeight = isDesktop
         ? 520.0
         : isTablet
-            ? 420.0
-            : 560.0;
+        ? 420.0
+        : 500.0;
 
     return Scaffold(
-      body: Stack(
-        children: [
-          const Positioned.fill(child: LandingBackground()),
-          SafeArea(
-            child: SingleChildScrollView(
-              controller: _scrollController,
-              padding: EdgeInsets.symmetric(
-                horizontal: horizontalPadding,
-                vertical: AppSpacing.lg,
-              ),
-              child: Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 1400),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _LandingAppBar(
-                        isDesktop: isDesktop,
-                        isMobile: isMobile,
-                        onFeaturesTap: _scrollToFeatures,
-                      ),
-                      SizedBox(height: isMobile ? AppSpacing.lg : AppSpacing.xl),
-                      if (isDesktop)
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            const Expanded(flex: 11, child: _HeroContent()),
-                            const SizedBox(width: AppSpacing.xl),
-                            Expanded(
-                              flex: 10,
-                              child: SizedBox(
-                                height: previewHeight,
-                                child: const PlatformPreviewCard(),
-                              ),
-                            ),
-                          ],
-                        )
-                      else ...[
-                        const _HeroContent(),
-                        const SizedBox(height: AppSpacing.xl),
-                        SizedBox(
-                          height: previewHeight,
-                          child: const PlatformPreviewCard(),
+      body: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 450),
+        switchInCurve: Curves.easeOutCubic,
+        switchOutCurve: Curves.easeInCubic,
+        child: Stack(
+          children: [
+            const Positioned.fill(child: LandingBackground()),
+            SafeArea(
+              child: SingleChildScrollView(
+                controller: _scrollController,
+                padding: EdgeInsets.symmetric(
+                  horizontal: horizontalPadding,
+                  vertical: AppSpacing.lg,
+                ),
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 1400),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _LandingAppBar(
+                          isDesktop: isDesktop,
+                          isMobile: isMobile,
+                          onFeaturesTap: _scrollToFeatures,
                         ),
-                      ],
-                      const SizedBox(height: AppSpacing.xxxl),
-                      Container(
-                        key: _featuresKey,
-                        child: Text(
-                          'Why teams choose this platform',
-                          style: theme.textTheme.headlineSmall?.copyWith(
-                            fontWeight: FontWeight.w800,
+                        SizedBox(
+                          height: isMobile ? AppSpacing.lg : AppSpacing.xl,
+                        ),
+                        if (isDesktop)
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              const Expanded(flex: 11, child: _HeroContent()),
+                              const SizedBox(width: AppSpacing.xl),
+                              Expanded(
+                                flex: 10,
+                                child: SizedBox(
+                                  height: previewHeight,
+                                  child: const PlatformPreviewCard(),
+                                ),
+                              ),
+                            ],
+                          )
+                        else ...[
+                          const _HeroContent(),
+                          const SizedBox(height: AppSpacing.xl),
+                          SizedBox(
+                            height: previewHeight,
+                            child: const PlatformPreviewCard(),
+                          ),
+                        ],
+                        const SizedBox(height: AppSpacing.xxl),
+                        Container(
+                          key: _featuresKey,
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  'Everything needed to follow the day',
+                                  style: theme.textTheme.headlineSmall
+                                      ?.copyWith(fontWeight: FontWeight.w800),
+                                ),
+                              ),
+                              if (!isMobile)
+                                Text(
+                                  'Focused for students and faculty',
+                                  style: theme.textTheme.bodyMedium?.copyWith(
+                                    color: theme.colorScheme.onSurfaceVariant,
+                                  ),
+                                ),
+                            ],
                           ),
                         ),
-                      ),
-                      const SizedBox(height: AppSpacing.lg),
-                      LayoutBuilder(
-                        builder: (context, constraints) {
-                          final columns = constraints.maxWidth >= 1200
-                              ? 5
-                              : constraints.maxWidth >= 800
-                              ? 2
-                              : 1;
+                        const SizedBox(height: AppSpacing.lg),
+                        LayoutBuilder(
+                          builder: (context, constraints) {
+                            final columns = constraints.maxWidth >= 1200
+                                ? 5
+                                : constraints.maxWidth >= 800
+                                ? 2
+                                : 1;
 
-                          return Wrap(
-                            spacing: AppSpacing.lg,
-                            runSpacing: AppSpacing.lg,
-                            children: _features
-                                .map(
-                                  (feature) => SizedBox(
-                                    width: columns == 1
-                                        ? constraints.maxWidth
-                                        : columns == 2
-                                        ? (constraints.maxWidth -
-                                                  AppSpacing.lg) /
-                                              2
-                                        : (constraints.maxWidth -
-                                                  (AppSpacing.lg * 4)) /
-                                              5,
-                                    child: FeatureHighlightCard(
-                                      title: feature.title,
-                                      description: feature.description,
-                                      icon: feature.icon,
-                                      color: feature.color,
+                            return Wrap(
+                              spacing: AppSpacing.lg,
+                              runSpacing: AppSpacing.lg,
+                              children: _features
+                                  .map(
+                                    (feature) => SizedBox(
+                                      width: columns == 1
+                                          ? constraints.maxWidth
+                                          : columns == 2
+                                          ? (constraints.maxWidth -
+                                                    AppSpacing.lg) /
+                                                2
+                                          : (constraints.maxWidth -
+                                                    (AppSpacing.lg * 4)) /
+                                                5,
+                                      child: FeatureHighlightCard(
+                                        title: feature.title,
+                                        description: feature.description,
+                                        icon: feature.icon,
+                                        color: feature.color,
+                                      ),
                                     ),
-                                  ),
-                                )
-                                .toList(),
-                          );
-                        },
-                      ),
-                      const SizedBox(height: AppSpacing.xxxl),
-                    ],
+                                  )
+                                  .toList(),
+                            );
+                          },
+                        ),
+                        const SizedBox(height: AppSpacing.xxxl),
+                      ],
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -176,68 +195,81 @@ class _LandingAppBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    if (isMobile) {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const BrandMark(size: 52, compact: true),
-          const SizedBox(height: AppSpacing.md),
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: [
-                TextButton(
-                  onPressed: onFeaturesTap,
-                  child: const Text('Features'),
-                ),
-                const SizedBox(width: 8),
-                FilledButton.tonal(
-                  onPressed: () => context.go(AppStrings.loginRoute),
-                  child: const Text('Login'),
-                ),
-                const SizedBox(width: 8),
-                FilledButton(
-                  onPressed: () => context.go(AppStrings.loginRoute),
-                  style: FilledButton.styleFrom(
-                    backgroundColor: theme.colorScheme.primary,
-                    foregroundColor: theme.colorScheme.onPrimary,
-                  ),
-                  child: const Text('Get Started'),
-                ),
-              ],
-            ),
+    if (!isDesktop) {
+      return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.md,
+          vertical: AppSpacing.sm,
+        ),
+        decoration: BoxDecoration(
+          color: theme.cardColor.withValues(alpha: 0.9),
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(
+            color: theme.colorScheme.outlineVariant.withValues(alpha: 0.35),
           ),
-        ],
+        ),
+        child: Row(
+          children: [
+            BrandMark(size: isMobile ? 42 : 46, compact: true),
+            const Spacer(),
+            IconButton.filledTonal(
+              tooltip: 'What you get',
+              onPressed: onFeaturesTap,
+              icon: const Icon(Icons.grid_view_rounded),
+            ),
+            const SizedBox(width: AppSpacing.xs),
+            FilledButton(
+              onPressed: () => context.go(AppStrings.loginRoute),
+              style: FilledButton.styleFrom(
+                backgroundColor: theme.colorScheme.primary,
+                foregroundColor: theme.colorScheme.onPrimary,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.md,
+                  vertical: AppSpacing.sm,
+                ),
+              ),
+              child: const Text('Login'),
+            ),
+          ],
+        ),
       );
     }
 
-    return Row(
-      children: [
-        const BrandMark(size: 56, compact: false),
-        const Spacer(),
-        if (isDesktop) ...[
-          TextButton(
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.md,
+        vertical: AppSpacing.sm,
+      ),
+      decoration: BoxDecoration(
+        color: theme.cardColor.withValues(alpha: 0.9),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: theme.colorScheme.outlineVariant.withValues(alpha: 0.35),
+        ),
+      ),
+      child: Row(
+        children: [
+          const BrandMark(size: 46, compact: false),
+          const Spacer(),
+          TextButton.icon(
             onPressed: onFeaturesTap,
-            child: const Text('Features'),
+            icon: const Icon(Icons.grid_view_rounded),
+            label: const Text('What you get'),
           ),
           const SizedBox(width: 8),
-          TextButton(onPressed: () {}, child: const Text('Platform')),
-          const SizedBox(width: 12),
-        ],
-        FilledButton.tonal(
-          onPressed: () => context.go(AppStrings.loginRoute),
-          child: const Text('Login'),
-        ),
-        const SizedBox(width: 12),
-        FilledButton(
-          onPressed: () => context.go(AppStrings.loginRoute),
-          style: FilledButton.styleFrom(
-            backgroundColor: theme.colorScheme.primary,
-            foregroundColor: theme.colorScheme.onPrimary,
+          TextButton.icon(
+            onPressed: () {},
+            icon: const Icon(Icons.view_timeline_rounded),
+            label: const Text('Timetable app'),
           ),
-          child: const Text('Get Started'),
-        ),
-      ],
+          const SizedBox(width: AppSpacing.sm),
+          FilledButton.tonal(
+            onPressed: () => context.go(AppStrings.loginRoute),
+            child: const Text('Login'),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -253,12 +285,12 @@ class _HeroContent extends StatelessWidget {
     final titleStyle = isMobile
         ? theme.textTheme.displayMedium?.copyWith(
             fontWeight: FontWeight.w900,
-            letterSpacing: -1.4,
+            letterSpacing: 0,
             height: 0.98,
           )
         : theme.textTheme.displaySmall?.copyWith(
             fontWeight: FontWeight.w900,
-            letterSpacing: -1.8,
+            letterSpacing: 0,
             height: 1.05,
           );
 
@@ -286,7 +318,7 @@ class _HeroContent extends StatelessWidget {
               ),
             ),
             child: Text(
-              'Designed for universities, faculties, and campus operations',
+              'Precision scheduling for academic days',
               style: theme.textTheme.labelLarge?.copyWith(
                 color: theme.colorScheme.primary,
                 fontWeight: FontWeight.w700,
@@ -299,10 +331,7 @@ class _HeroContent extends StatelessWidget {
           tag: 'landing-title',
           child: Material(
             type: MaterialType.transparency,
-            child: Text(
-              AppStrings.appTitle,
-              style: titleStyle,
-            ),
+            child: Text(AppStrings.appTitle, style: titleStyle),
           ),
         ),
         SizedBox(height: isMobile ? AppSpacing.md : AppSpacing.lg),
@@ -310,13 +339,14 @@ class _HeroContent extends StatelessWidget {
           constraints: const BoxConstraints(maxWidth: 680),
           child: Text(
             AppStrings.appSubtitle,
-            style: (isMobile
-                    ? theme.textTheme.titleLarge
-                    : theme.textTheme.titleMedium)
-                ?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
-              height: 1.6,
-            ),
+            style:
+                (isMobile
+                        ? theme.textTheme.titleLarge
+                        : theme.textTheme.titleMedium)
+                    ?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                      height: 1.6,
+                    ),
           ),
         ),
         const SizedBox(height: AppSpacing.xl),
@@ -326,14 +356,8 @@ class _HeroContent extends StatelessWidget {
             children: [
               FilledButton.icon(
                 onPressed: () => context.go(AppStrings.loginRoute),
-                icon: const Icon(Icons.arrow_forward_rounded),
+                icon: const Icon(Icons.rocket_launch_rounded),
                 label: const Text('Get Started'),
-              ),
-              const SizedBox(height: AppSpacing.md),
-              OutlinedButton.icon(
-                onPressed: () => context.go(AppStrings.loginRoute),
-                icon: const Icon(Icons.login_rounded),
-                label: const Text('Login'),
               ),
             ],
           )
@@ -344,13 +368,8 @@ class _HeroContent extends StatelessWidget {
             children: [
               FilledButton.icon(
                 onPressed: () => context.go(AppStrings.loginRoute),
-                icon: const Icon(Icons.arrow_forward_rounded),
+                icon: const Icon(Icons.rocket_launch_rounded),
                 label: const Text('Get Started'),
-              ),
-              OutlinedButton.icon(
-                onPressed: () => context.go(AppStrings.loginRoute),
-                icon: const Icon(Icons.login_rounded),
-                label: const Text('Login'),
               ),
             ],
           ),
@@ -361,25 +380,16 @@ class _HeroContent extends StatelessWidget {
               Row(
                 children: [
                   Expanded(
-                    child: HeroMetricChip(
-                      label: 'Campuses Coordinated',
-                      value: '12+',
-                    ),
+                    child: HeroMetricChip(label: 'Today View', value: 'Live'),
                   ),
                   SizedBox(width: AppSpacing.md),
                   Expanded(
-                    child: HeroMetricChip(
-                      label: 'Scheduling Accuracy',
-                      value: '98%',
-                    ),
+                    child: HeroMetricChip(label: 'Role Access', value: 'Role'),
                   ),
                 ],
               ),
               SizedBox(height: AppSpacing.md),
-              HeroMetricChip(
-                label: 'Reschedule Time Saved',
-                value: '6 hrs',
-              ),
+              HeroMetricChip(label: 'Academic Alerts', value: 'On'),
             ],
           )
         else
@@ -387,24 +397,11 @@ class _HeroContent extends StatelessWidget {
             spacing: AppSpacing.md,
             runSpacing: AppSpacing.md,
             children: const [
-              HeroMetricChip(label: 'Campuses Coordinated', value: '12+'),
-              HeroMetricChip(label: 'Scheduling Accuracy', value: '98%'),
-              HeroMetricChip(label: 'Reschedule Time Saved', value: '6 hrs'),
+              HeroMetricChip(label: 'Today View', value: 'Live'),
+              HeroMetricChip(label: 'Role Access', value: '2'),
+              HeroMetricChip(label: 'Alerts', value: 'Instant'),
             ],
           ),
-        const SizedBox(height: AppSpacing.xl),
-        Wrap(
-          spacing: AppSpacing.sm,
-          runSpacing: AppSpacing.sm,
-          children: _featureLabels
-              .map(
-                (label) => Chip(
-                  label: Text(label),
-                  avatar: const Icon(Icons.check_circle_rounded, size: 18),
-                ),
-              )
-              .toList(),
-        ),
         if (isMobile) const SizedBox(height: AppSpacing.md),
       ],
     );
@@ -425,48 +422,40 @@ class _FeatureData {
   final Color color;
 }
 
-const _featureLabels = [
-  'Smart Scheduling',
-  'Conflict Detection',
-  'Real-time Updates',
-  'Analytics Dashboard',
-  'Adaptive Rescheduling',
-];
-
 const _features = [
   _FeatureData(
-    title: 'Smart Scheduling',
+    title: 'Personal Timetable',
     description:
-        'Create balanced academic timetables with structured automation for classes, labs, and exams.',
-    icon: Icons.auto_awesome_rounded,
-    color: Color(0xFF0F766E),
+        'Students and faculty can quickly see today classes, rooms, and upcoming sessions.',
+    icon: Icons.event_available_rounded,
+    color: Color(0xFF3657FF),
   ),
   _FeatureData(
-    title: 'Conflict Detection',
+    title: 'Room and Time Updates',
     description:
-        'Catch faculty overlaps, room collisions, and time-slot clashes before they impact students.',
-    icon: Icons.warning_amber_rounded,
-    color: Color(0xFFF97316),
+        'Important changes are surfaced clearly so users do not miss relocated or rescheduled classes.',
+    icon: Icons.door_sliding_rounded,
+    color: Color(0xFFFF6B4A),
   ),
   _FeatureData(
-    title: 'Real-time Updates',
+    title: 'Academic Alerts',
     description:
-        'Keep students, faculty, and administrators aligned with live timetable and room changes.',
-    icon: Icons.notifications_active_rounded,
-    color: Color(0xFF0284C7),
+        'Notices, quizzes, substitutions, and department updates stay visible in one place.',
+    icon: Icons.campaign_rounded,
+    color: Color(0xFF00A88F),
   ),
   _FeatureData(
-    title: 'Analytics Dashboard',
+    title: 'Attendance Snapshot',
     description:
-        'Track room utilization, teaching load, and scheduling efficiency with executive-ready views.',
-    icon: Icons.insights_rounded,
-    color: Color(0xFF7C3AED),
+        'Students can track attendance status without digging through multiple screens.',
+    icon: Icons.verified_rounded,
+    color: Color(0xFF8B5CF6),
   ),
   _FeatureData(
-    title: 'Adaptive Rescheduling',
+    title: 'Faculty Teaching View',
     description:
-        'Respond faster to disruptions by previewing downstream impact before confirming changes.',
-    icon: Icons.sync_alt_rounded,
-    color: Color(0xFF16A34A),
+        'Faculty can see lectures, batches, room details, and pending schedule-related updates.',
+    icon: Icons.workspace_premium_rounded,
+    color: Color(0xFFE8A700),
   ),
 ];

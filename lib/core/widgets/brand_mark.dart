@@ -15,28 +15,51 @@ class BrandMark extends StatelessWidget {
       children: [
         Hero(
           tag: 'brand-mark',
-          child: Container(
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 320),
+            curve: Curves.easeOutCubic,
             width: size,
             height: size,
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(size * 0.28),
+              borderRadius: BorderRadius.circular(size * 0.36),
               gradient: const LinearGradient(
-                colors: [Color(0xFF0F766E), Color(0xFF38BDF8)],
+                colors: [
+                  Color(0xFF111827),
+                  Color(0xFF3657FF),
+                  Color(0xFFFF6B4A),
+                ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: const Color(0xFF38BDF8).withValues(alpha: 0.25),
-                  blurRadius: 32,
+                  color: const Color(0xFF3657FF).withValues(alpha: 0.22),
+                  blurRadius: 34,
                   offset: const Offset(0, 18),
                 ),
               ],
             ),
-            child: Icon(
-              Icons.auto_awesome_mosaic_rounded,
-              color: Colors.white,
-              size: size * 0.46,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                Icon(
+                  Icons.auto_graph_rounded,
+                  color: Colors.white,
+                  size: size * 0.5,
+                ),
+                Positioned(
+                  right: size * 0.2,
+                  top: size * 0.2,
+                  child: Container(
+                    width: size * 0.15,
+                    height: size * 0.15,
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFFFE071),
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ),
@@ -48,14 +71,14 @@ class BrandMark extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  'SAS Platform',
+                  'Smart Sched',
                   style: theme.textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: -0.4,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 0,
                   ),
                 ),
                 Text(
-                  'Academic scheduling, simplified',
+                  'Academic scheduling workspace',
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: theme.colorScheme.onSurfaceVariant,
                   ),

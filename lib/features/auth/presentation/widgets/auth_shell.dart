@@ -26,8 +26,8 @@ class AuthShell extends StatelessWidget {
     final horizontalPadding = isDesktop
         ? AppSpacing.xxxl
         : isTablet
-            ? AppSpacing.xl
-            : AppSpacing.lg;
+        ? AppSpacing.xl
+        : AppSpacing.lg;
 
     return Scaffold(
       body: Stack(
@@ -45,7 +45,23 @@ class AuthShell extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const BrandMark(size: 56),
+                      AnimatedContainer(
+                        duration: const Duration(milliseconds: 360),
+                        curve: Curves.easeOutCubic,
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(AppSpacing.md),
+                        decoration: BoxDecoration(
+                          color: Theme.of(
+                            context,
+                          ).cardColor.withValues(alpha: 0.9),
+                          borderRadius: BorderRadius.circular(26),
+                          border: Border.all(
+                            color: Theme.of(context).colorScheme.outlineVariant
+                                .withValues(alpha: 0.35),
+                          ),
+                        ),
+                        child: const BrandMark(size: 56),
+                      ),
                       const SizedBox(height: AppSpacing.xl),
                       if (isDesktop)
                         Row(
@@ -64,13 +80,13 @@ class AuthShell extends StatelessWidget {
                           ],
                         )
                       else ...[
+                        formCard,
+                        const SizedBox(height: AppSpacing.xl),
                         _AuthIntro(
                           title: title,
                           subtitle: subtitle,
                           child: sidePanel,
                         ),
-                        const SizedBox(height: AppSpacing.xl),
-                        formCard,
                       ],
                     ],
                   ),
@@ -112,7 +128,7 @@ class _AuthIntro extends StatelessWidget {
             ),
           ),
           child: Text(
-            'Secure role-based access for every academic stakeholder',
+            'Student and faculty access only',
             style: theme.textTheme.labelLarge?.copyWith(
               color: theme.colorScheme.primary,
               fontWeight: FontWeight.w700,
@@ -128,7 +144,7 @@ class _AuthIntro extends StatelessWidget {
               title,
               style: theme.textTheme.displaySmall?.copyWith(
                 fontWeight: FontWeight.w900,
-                letterSpacing: -1.6,
+                letterSpacing: 0,
                 height: 1.05,
               ),
             ),
