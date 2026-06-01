@@ -1,23 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/constants/app_strings.dart';
+import '../../../../core/network/api_client.dart';
+import '../../../../core/network/api_providers.dart';
 import '../widgets/auth_shell.dart';
 import '../widgets/role_selector.dart';
 
-class LoginScreen extends StatefulWidget {
+class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  ConsumerState<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   String _selectedRole = 'Student';
   bool _obscurePassword = true;
+  bool _isLoading = false;
+  String? _errorText;
 
   static const _roles = ['Student', 'Faculty'];
 
@@ -40,12 +45,54 @@ class _LoginScreenState extends State<LoginScreen> {
         passwordController: _passwordController,
         selectedRole: _selectedRole,
         obscurePassword: _obscurePassword,
+        isLoading: _isLoading,
+        errorText: _errorText,
         onRoleSelected: (role) => setState(() => _selectedRole = role),
         onTogglePassword: () {
           setState(() => _obscurePassword = !_obscurePassword);
         },
+        onLogin: _login,
       ),
     );
+  }
+
+  Future<void> _login() async {
+    final email = _emailController.text.trim();
+    final password = _passwordController.text;
+
+    if (email.isEmpty || password.isEmpty) {
+      setState(() => _errorText = 'Enter your email and password.');
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+      _errorText = null;
+    });
+
+    try {
+      final api = ref.read(apiClientProvider);
+      final data = await api.login(email: email, password: password);
+      final userRole = (data['user']?['role'] ?? _selectedRole).toString();
+      if (!mounted) return;
+
+      final role = userRole.toLowerCase();
+      if (role.contains('faculty') || _selectedRole == 'Faculty') {
+        context.go(AppStrings.facultyDashboardRoute);
+      } else {
+        context.go(AppStrings.studentDashboardRoute);
+      }
+    } on ApiException catch (error) {
+      if (!mounted) return;
+      setState(() => _errorText = error.message);
+    } catch (_) {
+      if (!mounted) return;
+      setState(
+        () => _errorText = 'Could not reach the backend. Please try again.',
+      );
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
   }
 }
 
@@ -55,16 +102,22 @@ class _LoginFormCard extends StatelessWidget {
     required this.passwordController,
     required this.selectedRole,
     required this.obscurePassword,
+    required this.isLoading,
+    required this.errorText,
     required this.onRoleSelected,
     required this.onTogglePassword,
+    required this.onLogin,
   });
 
   final TextEditingController emailController;
   final TextEditingController passwordController;
   final String selectedRole;
   final bool obscurePassword;
+  final bool isLoading;
+  final String? errorText;
   final ValueChanged<String> onRoleSelected;
   final VoidCallback onTogglePassword;
+  final VoidCallback onLogin;
 
   @override
   Widget build(BuildContext context) {
@@ -163,31 +216,74 @@ class _LoginFormCard extends StatelessWidget {
               ),
             ),
             const SizedBox(height: AppSpacing.md),
+            if (errorText != null) ...[
+              _AuthErrorBanner(message: errorText!),
+              const SizedBox(height: AppSpacing.md),
+            ],
             SizedBox(
               width: double.infinity,
               child: FilledButton.icon(
-                onPressed: () {
-                  if (selectedRole == 'Student') {
-                    context.go(AppStrings.studentDashboardRoute);
-                    return;
-                  }
-
-                  context.go(AppStrings.facultyDashboardRoute);
-                },
-                icon: const Icon(Icons.arrow_forward_rounded),
-                label: const Text('Login'),
+                onPressed: isLoading ? null : onLogin,
+                icon: isLoading
+                    ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Icons.arrow_forward_rounded),
+                label: Text(isLoading ? 'Signing in...' : 'Login'),
+              ),
+            ),
+            const SizedBox(height: AppSpacing.md),
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton.tonalIcon(
+                onPressed: isLoading
+                    ? null
+                    : () => context.go(AppStrings.registerRoute),
+                icon: const Icon(Icons.person_add_alt_1_rounded),
+                label: const Text('Create Student or Faculty Account'),
               ),
             ),
             const SizedBox(height: AppSpacing.md),
             SizedBox(
               width: double.infinity,
               child: OutlinedButton.icon(
-                onPressed: () => context.go(AppStrings.landingRoute),
+                onPressed: isLoading
+                    ? null
+                    : () => context.go(AppStrings.landingRoute),
                 icon: const Icon(Icons.keyboard_backspace_rounded),
                 label: const Text('Back to Landing Page'),
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _AuthErrorBanner extends StatelessWidget {
+  const _AuthErrorBanner({required this.message});
+
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(AppSpacing.md),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.errorContainer.withValues(alpha: 0.7),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Text(
+        message,
+        style: theme.textTheme.bodyMedium?.copyWith(
+          color: theme.colorScheme.onErrorContainer,
+          fontWeight: FontWeight.w700,
         ),
       ),
     );
