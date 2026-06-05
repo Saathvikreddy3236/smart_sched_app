@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
 
 class BrandMark extends StatelessWidget {
-  const BrandMark({super.key, this.size = 72, this.compact = false});
+  const BrandMark({
+    super.key,
+    this.size = 72,
+    this.compact = false,
+    this.showSubtitle = true,
+  });
 
   final double size;
   final bool compact;
+  final bool showSubtitle;
 
   @override
   Widget build(BuildContext context) {
@@ -22,15 +28,6 @@ class BrandMark extends StatelessWidget {
             height: size,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(size * 0.36),
-              gradient: const LinearGradient(
-                colors: [
-                  Color(0xFF111827),
-                  Color(0xFF3657FF),
-                  Color(0xFFFF6B4A),
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
               boxShadow: [
                 BoxShadow(
                   color: const Color(0xFF3657FF).withValues(alpha: 0.22),
@@ -39,27 +36,10 @@ class BrandMark extends StatelessWidget {
                 ),
               ],
             ),
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                Icon(
-                  Icons.auto_graph_rounded,
-                  color: Colors.white,
-                  size: size * 0.5,
-                ),
-                Positioned(
-                  right: size * 0.2,
-                  top: size * 0.2,
-                  child: Container(
-                    width: size * 0.15,
-                    height: size * 0.15,
-                    decoration: const BoxDecoration(
-                      color: Color(0xFFFFE071),
-                      shape: BoxShape.circle,
-                    ),
-                  ),
-                ),
-              ],
+            clipBehavior: Clip.antiAlias,
+            child: Image.asset(
+              'assets/logo.png',
+              fit: BoxFit.cover,
             ),
           ),
         ),
@@ -77,12 +57,13 @@ class BrandMark extends StatelessWidget {
                     letterSpacing: 0,
                   ),
                 ),
-                Text(
-                  'Academic scheduling workspace',
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
+                if (showSubtitle)
+                  Text(
+                    'Academic scheduling workspace',
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
                   ),
-                ),
               ],
             ),
           ),

@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/constants/app_strings.dart';
+import '../../../../core/widgets/brand_mark.dart';
 import '../../../landing/presentation/widgets/landing_background.dart';
 import '../widgets/student_section_card.dart';
 import '../widgets/student_stat_pill.dart';
@@ -125,7 +126,6 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                             child: _DashboardHeader(
                               title: 'My Timetable',
                               dateText: 'Monday, 09:00 AM',
-                              avatarText: 'AS',
                             ),
                           ),
                         ),
@@ -216,13 +216,7 @@ class _StudentSideNav extends StatelessWidget {
             onTap: () => onSelected(3),
           ),
           const Spacer(),
-          Text(
-            'Smart Sched',
-            style: theme.textTheme.labelLarge?.copyWith(
-              color: theme.colorScheme.primary,
-              fontWeight: FontWeight.w800,
-            ),
-          ),
+          const BrandMark(size: 36, compact: false, showSubtitle: false),
         ],
       ),
     );
@@ -378,12 +372,10 @@ class _DashboardHeader extends StatelessWidget {
   const _DashboardHeader({
     required this.title,
     required this.dateText,
-    required this.avatarText,
   });
 
   final String title;
   final String dateText;
-  final String avatarText;
 
   @override
   Widget build(BuildContext context) {
@@ -453,19 +445,7 @@ class _DashboardHeader extends StatelessWidget {
               icon: const Icon(Icons.logout_rounded),
             ),
             const SizedBox(width: AppSpacing.sm),
-            CircleAvatar(
-              radius: 20,
-              backgroundColor: theme.colorScheme.primary.withValues(
-                alpha: 0.14,
-              ),
-              child: Text(
-                avatarText,
-                style: theme.textTheme.labelLarge?.copyWith(
-                  color: theme.colorScheme.primary,
-                  fontWeight: FontWeight.w900,
-                ),
-              ),
-            ),
+            const BrandMark(size: 40, compact: true),
           ],
         ),
       ),
