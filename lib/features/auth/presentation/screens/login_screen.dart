@@ -72,7 +72,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
     try {
       final api = ref.read(apiClientProvider);
-      final data = await api.login(email: email, password: password);
+      final data = await api.login(
+        email: email,
+        password: password,
+        role: _selectedRole,
+      );
       final userRole = (data['user']?['role'] ?? _selectedRole).toString();
       if (!mounted) return;
 

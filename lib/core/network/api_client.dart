@@ -17,10 +17,15 @@ class ApiClient {
   Future<Map<String, dynamic>> login({
     required String email,
     required String password,
+    required String role,
   }) async {
     final data = await post(
       '/api/auth/login/',
-      body: {'email': email, 'password': password},
+      body: {
+        'email': email,
+        'password': password,
+        'role': role.toUpperCase(),
+      },
     );
     _accessToken = data['access'] as String?;
     _currentUser = _readUser(data);
