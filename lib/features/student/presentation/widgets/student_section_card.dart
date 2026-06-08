@@ -17,16 +17,16 @@ class StudentSectionCard extends StatelessWidget {
     return Container(
       padding: padding,
       decoration: BoxDecoration(
-        color: theme.cardColor,
+        color: theme.cardColor.withValues(alpha: 0.9),
         borderRadius: BorderRadius.circular(28),
         border: Border.all(
-          color: theme.colorScheme.outlineVariant.withValues(alpha: 0.35),
+          color: theme.colorScheme.outlineVariant.withValues(alpha: 0.32),
         ),
         boxShadow: [
           BoxShadow(
             color: theme.colorScheme.shadow.withValues(alpha: 0.08),
-            blurRadius: 28,
-            offset: const Offset(0, 16),
+            blurRadius: 34,
+            offset: const Offset(0, 20),
           ),
         ],
       ),

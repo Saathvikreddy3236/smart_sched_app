@@ -7,11 +7,11 @@ class PlatformPreviewCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final width = MediaQuery.sizeOf(context).width;
-    final isMobile = width < 700;
+    final isCompact = width < 900;
 
     return TweenAnimationBuilder<Offset>(
       duration: const Duration(milliseconds: 900),
-      curve: Curves.easeOutCubic,
+      curve: Curves.easeOutExpo,
       tween: Tween(begin: const Offset(0, 0.08), end: Offset.zero),
       builder: (context, offset, child) {
         return Transform.translate(
@@ -20,18 +20,18 @@ class PlatformPreviewCard extends StatelessWidget {
         );
       },
       child: Container(
-        padding: EdgeInsets.all(isMobile ? 18 : 24),
+        padding: EdgeInsets.all(isCompact ? 18 : 24),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(32),
-          color: theme.cardColor,
+          borderRadius: BorderRadius.circular(34),
+          color: theme.cardColor.withValues(alpha: 0.9),
           border: Border.all(
             color: theme.colorScheme.outlineVariant.withValues(alpha: 0.35),
           ),
           boxShadow: [
             BoxShadow(
-              color: theme.colorScheme.shadow.withValues(alpha: 0.08),
-              blurRadius: 40,
-              offset: const Offset(0, 24),
+              color: theme.colorScheme.shadow.withValues(alpha: 0.12),
+              blurRadius: 44,
+              offset: const Offset(0, 28),
             ),
           ],
         ),
@@ -51,11 +51,11 @@ class PlatformPreviewCard extends StatelessWidget {
                     vertical: 6,
                   ),
                   decoration: BoxDecoration(
-                    color: theme.colorScheme.primary.withValues(alpha: 0.12),
+                    color: theme.colorScheme.primary.withValues(alpha: 0.11),
                     borderRadius: BorderRadius.circular(999),
                   ),
                   child: Text(
-                    'Live Campus Grid',
+                    'Live Timetable View',
                     style: theme.textTheme.labelMedium?.copyWith(
                       color: theme.colorScheme.primary,
                       fontWeight: FontWeight.w700,
@@ -64,9 +64,9 @@ class PlatformPreviewCard extends StatelessWidget {
                 ),
               ],
             ),
-            SizedBox(height: isMobile ? 18 : 24),
+            SizedBox(height: isCompact ? 18 : 24),
             Expanded(
-              child: isMobile
+              child: isCompact
                   ? const _MobilePreviewLayout()
                   : const _DesktopPreviewLayout(),
             ),
@@ -89,17 +89,17 @@ class _DesktopPreviewLayout extends StatelessWidget {
             children: [
               const Expanded(
                 child: _PreviewTile(
-                  title: 'Conflict Detection',
-                  value: '03 alerts',
-                  accent: Color(0xFFF97316),
+                  title: 'Today Classes',
+                  value: '04',
+                  accent: Color(0xFFFF6B4A),
                 ),
               ),
               const SizedBox(height: 16),
               const Expanded(
                 child: _PreviewTile(
-                  title: 'Room Utilization',
-                  value: '84%',
-                  accent: Color(0xFF0F766E),
+                  title: 'Attendance',
+                  value: '86%',
+                  accent: Color(0xFF00A88F),
                 ),
               ),
               const Spacer(),
@@ -134,22 +134,19 @@ class _DesktopPreviewLayout extends StatelessWidget {
                 children: [
                   Expanded(
                     child: _MiniLegend(
-                      color: Color(0xFF0F766E),
-                      label: 'Lectures',
+                      color: Color(0xFF3657FF),
+                      label: 'Class',
                     ),
                   ),
                   SizedBox(width: 12),
                   Expanded(
-                    child: _MiniLegend(
-                      color: Color(0xFF38BDF8),
-                      label: 'Labs',
-                    ),
+                    child: _MiniLegend(color: Color(0xFF00A88F), label: 'Lab'),
                   ),
                   SizedBox(width: 12),
                   Expanded(
                     child: _MiniLegend(
-                      color: Color(0xFFF59E0B),
-                      label: 'Exams',
+                      color: Color(0xFFFF6B4A),
+                      label: 'Alert',
                     ),
                   ),
                 ],
@@ -176,9 +173,9 @@ class _MobilePreviewLayout extends StatelessWidget {
               child: SizedBox(
                 height: 92,
                 child: _PreviewTile(
-                  title: 'Conflict Alerts',
-                  value: '03',
-                  accent: Color(0xFFF97316),
+                  title: 'Classes',
+                  value: '04',
+                  accent: Color(0xFFFF6B4A),
                   compact: true,
                 ),
               ),
@@ -188,9 +185,9 @@ class _MobilePreviewLayout extends StatelessWidget {
               child: SizedBox(
                 height: 92,
                 child: _PreviewTile(
-                  title: 'Room Usage',
-                  value: '84%',
-                  accent: Color(0xFF0F766E),
+                  title: 'Attendance',
+                  value: '86%',
+                  accent: Color(0xFF00A88F),
                   compact: true,
                 ),
               ),
@@ -203,7 +200,7 @@ class _MobilePreviewLayout extends StatelessWidget {
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             itemCount: 5,
-            separatorBuilder: (_, __) => const SizedBox(width: 10),
+            separatorBuilder: (context, index) => const SizedBox(width: 10),
             itemBuilder: (context, index) => SizedBox(
               width: 76,
               child: _CalendarColumn(index: index, compact: true),
@@ -221,9 +218,9 @@ class _MobilePreviewLayout extends StatelessWidget {
           spacing: 10,
           runSpacing: 10,
           children: [
-            _MiniLegend(color: Color(0xFF0F766E), label: 'Lectures'),
-            _MiniLegend(color: Color(0xFF38BDF8), label: 'Labs'),
-            _MiniLegend(color: Color(0xFFF59E0B), label: 'Exams'),
+            _MiniLegend(color: Color(0xFF3657FF), label: 'Class'),
+            _MiniLegend(color: Color(0xFF00A88F), label: 'Lab'),
+            _MiniLegend(color: Color(0xFFFF6B4A), label: 'Alert'),
           ],
         ),
       ],
@@ -267,7 +264,7 @@ class _PreviewTile extends StatelessWidget {
       padding: EdgeInsets.all(compact ? 14 : 16),
       decoration: BoxDecoration(
         color: accent.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(24),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -276,23 +273,20 @@ class _PreviewTile extends StatelessWidget {
             title,
             maxLines: compact ? 1 : 2,
             overflow: TextOverflow.ellipsis,
-            style: (compact
-                    ? theme.textTheme.labelMedium
-                    : theme.textTheme.labelLarge)
-                ?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
+            style:
+                (compact
+                        ? theme.textTheme.labelMedium
+                        : theme.textTheme.labelLarge)
+                    ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
           ),
           const Spacer(),
           Text(
             value,
-            style: (compact
-                    ? theme.textTheme.headlineMedium
-                    : theme.textTheme.headlineSmall)
-                ?.copyWith(
-              fontWeight: FontWeight.w800,
-              color: accent,
-            ),
+            style:
+                (compact
+                        ? theme.textTheme.headlineMedium
+                        : theme.textTheme.headlineSmall)
+                    ?.copyWith(fontWeight: FontWeight.w800, color: accent),
           ),
         ],
       ),
@@ -301,10 +295,7 @@ class _PreviewTile extends StatelessWidget {
 }
 
 class _CalendarColumn extends StatelessWidget {
-  const _CalendarColumn({
-    required this.index,
-    this.compact = false,
-  });
+  const _CalendarColumn({required this.index, this.compact = false});
 
   final int index;
   final bool compact;
@@ -312,11 +303,11 @@ class _CalendarColumn extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = [
-      const Color(0xFF0F766E),
-      const Color(0xFF38BDF8),
-      const Color(0xFFF59E0B),
-      const Color(0xFF10B981),
-      const Color(0xFF6366F1),
+      const Color(0xFF3657FF),
+      const Color(0xFF00A88F),
+      const Color(0xFFFF6B4A),
+      const Color(0xFFE8A700),
+      const Color(0xFF8B5CF6),
     ];
 
     return Container(
@@ -326,7 +317,7 @@ class _CalendarColumn extends StatelessWidget {
       ),
       decoration: BoxDecoration(
         color: palette[index].withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(22),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -334,9 +325,9 @@ class _CalendarColumn extends StatelessWidget {
           Text(
             ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'][index],
             style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                  fontWeight: FontWeight.w700,
-                  fontSize: compact ? 12 : null,
-                ),
+              fontWeight: FontWeight.w700,
+              fontSize: compact ? 12 : null,
+            ),
           ),
           SizedBox(height: compact ? 8 : 12),
           Expanded(
@@ -376,7 +367,7 @@ class _MiniLegend extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(999),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,

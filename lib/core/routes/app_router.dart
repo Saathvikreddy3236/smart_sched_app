@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../features/auth/presentation/screens/login_screen.dart';
+import '../../features/auth/presentation/screens/register_screen.dart';
 import '../../features/faculty/presentation/screens/faculty_dashboard_screen.dart';
 import '../../features/landing/presentation/screens/landing_page.dart';
 import '../../features/student/presentation/screens/student_dashboard_screen.dart';
@@ -18,6 +19,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppStrings.loginRoute,
         builder: (context, state) => const LoginScreen(),
+      ),
+      GoRoute(
+        path: AppStrings.registerRoute,
+        builder: (context, state) => const RegisterScreen(),
       ),
       GoRoute(
         path: AppStrings.studentDashboardRoute,

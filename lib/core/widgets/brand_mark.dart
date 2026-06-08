@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
 
 class BrandMark extends StatelessWidget {
-  const BrandMark({super.key, this.size = 72, this.compact = false});
+  const BrandMark({
+    super.key,
+    this.size = 72,
+    this.compact = false,
+    this.showSubtitle = true,
+  });
 
   final double size;
   final bool compact;
+  final bool showSubtitle;
 
   @override
   Widget build(BuildContext context) {
@@ -15,28 +21,25 @@ class BrandMark extends StatelessWidget {
       children: [
         Hero(
           tag: 'brand-mark',
-          child: Container(
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 320),
+            curve: Curves.easeOutCubic,
             width: size,
             height: size,
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(size * 0.28),
-              gradient: const LinearGradient(
-                colors: [Color(0xFF0F766E), Color(0xFF38BDF8)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
+              borderRadius: BorderRadius.circular(size * 0.36),
               boxShadow: [
                 BoxShadow(
-                  color: const Color(0xFF38BDF8).withValues(alpha: 0.25),
-                  blurRadius: 32,
+                  color: const Color(0xFF3657FF).withValues(alpha: 0.22),
+                  blurRadius: 34,
                   offset: const Offset(0, 18),
                 ),
               ],
             ),
-            child: Icon(
-              Icons.auto_awesome_mosaic_rounded,
-              color: Colors.white,
-              size: size * 0.46,
+            clipBehavior: Clip.antiAlias,
+            child: Image.asset(
+              'assets/logo.png',
+              fit: BoxFit.cover,
             ),
           ),
         ),
@@ -48,18 +51,19 @@ class BrandMark extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  'SAS Platform',
+                  'Smart Sched',
                   style: theme.textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: -0.4,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 0,
                   ),
                 ),
-                Text(
-                  'Academic scheduling, simplified',
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
+                if (showSubtitle)
+                  Text(
+                    'Academic scheduling workspace',
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
                   ),
-                ),
               ],
             ),
           ),
