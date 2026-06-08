@@ -21,11 +21,7 @@ class ApiClient {
   }) async {
     final data = await post(
       '/api/auth/login/',
-      body: {
-        'email': email,
-        'password': password,
-        'role': role.toUpperCase(),
-      },
+      body: {'email': email, 'password': password, 'role': role.toUpperCase()},
     );
     _accessToken = data['access'] as String?;
     _currentUser = _readUser(data);
@@ -36,14 +32,47 @@ class ApiClient {
     required String email,
     required String password,
     required String role,
+    required String name,
+    required int departmentId,
+    String? rollNo,
+    int? sectionId,
   }) {
-    return post(
-      '/api/auth/register/',
-      body: {'email': email, 'password': password, 'role': role.toUpperCase()},
-    );
+    final normalizedRole = role.toUpperCase();
+    final body = <String, dynamic>{
+      'email': email,
+      'password': password,
+      'role': normalizedRole,
+      'department_id': departmentId,
+    };
+
+    if (normalizedRole == 'STUDENT') {
+      body.addAll({
+        'student_name': name,
+        'roll_no': rollNo,
+        'section_id': sectionId,
+      });
+    } else {
+      body['faculty_name'] = name;
+    }
+
+    return post('/api/auth/register/', body: body);
   }
 
   Future<Map<String, dynamic>> getMe() => get('/api/auth/me/');
+
+  Future<List<Map<String, dynamic>>> getDepartments() async {
+    final data = await get('/api/academics/departments/');
+    return _readList(data);
+  }
+
+  Future<List<Map<String, dynamic>>> getSections({
+    required int departmentId,
+  }) async {
+    final data = await get(
+      '/api/academics/sections/?department_id=$departmentId',
+    );
+    return _readList(data);
+  }
 
   Future<Map<String, dynamic>> get(String path) async {
     final response = await _client.get(_uri(path), headers: _headers());
@@ -91,6 +120,17 @@ class ApiClient {
   Map<String, dynamic>? _readUser(Map<String, dynamic> data) {
     final user = data['user'];
     return user is Map<String, dynamic> ? user : null;
+  }
+
+  List<Map<String, dynamic>> _readList(Map<String, dynamic> data) {
+    final value = data['data'];
+    if (value is List) {
+      return value
+          .whereType<Map>()
+          .map((item) => Map<String, dynamic>.from(item))
+          .toList();
+    }
+    return const [];
   }
 
   String _messageFrom(Object? decoded) {

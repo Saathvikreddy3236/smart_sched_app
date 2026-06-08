@@ -20,21 +20,31 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _departmentController = TextEditingController();
   final _identifierController = TextEditingController();
   String _selectedRole = 'Student';
+  List<_DepartmentOption> _departments = const [];
+  List<_SectionOption> _sections = const [];
+  _DepartmentOption? _selectedDepartment;
+  _SectionOption? _selectedSection;
   bool _obscurePassword = true;
   bool _isLoading = false;
+  bool _isLoadingDepartments = true;
+  bool _isLoadingSections = false;
   String? _errorText;
 
   static const _roles = ['Student', 'Faculty'];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadDepartments();
+  }
 
   @override
   void dispose() {
     _nameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
-    _departmentController.dispose();
     _identifierController.dispose();
     super.dispose();
   }
@@ -50,17 +60,21 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
         nameController: _nameController,
         emailController: _emailController,
         passwordController: _passwordController,
-        departmentController: _departmentController,
         identifierController: _identifierController,
         selectedRole: _selectedRole,
+        departments: _departments,
+        sections: _sections,
+        selectedDepartment: _selectedDepartment,
+        selectedSection: _selectedSection,
         obscurePassword: _obscurePassword,
         isLoading: _isLoading,
+        isLoadingDepartments: _isLoadingDepartments,
+        isLoadingSections: _isLoadingSections,
         errorText: _errorText,
-        onRoleSelected: (role) {
-          setState(() {
-            _selectedRole = role;
-            _identifierController.clear();
-          });
+        onRoleSelected: _selectRole,
+        onDepartmentSelected: _selectDepartment,
+        onSectionSelected: (section) {
+          setState(() => _selectedSection = section);
         },
         onTogglePassword: () {
           setState(() => _obscurePassword = !_obscurePassword);
@@ -70,20 +84,91 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     );
   }
 
+  Future<void> _loadDepartments() async {
+    try {
+      final api = ref.read(apiClientProvider);
+      final items = await api.getDepartments();
+      if (!mounted) return;
+
+      setState(() {
+        _departments = items.map(_DepartmentOption.fromJson).toList();
+        _isLoadingDepartments = false;
+      });
+    } on ApiException catch (error) {
+      if (!mounted) return;
+      setState(() {
+        _errorText = error.message;
+        _isLoadingDepartments = false;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _errorText = 'Could not load departments. Please try again.';
+        _isLoadingDepartments = false;
+      });
+    }
+  }
+
+  void _selectRole(String role) {
+    setState(() {
+      _selectedRole = role;
+      _identifierController.clear();
+      _selectedSection = null;
+      if (role != 'Student') {
+        _sections = const [];
+      }
+    });
+
+    if (role == 'Student' && _selectedDepartment != null) {
+      _selectDepartment(_selectedDepartment);
+    }
+  }
+
+  Future<void> _selectDepartment(_DepartmentOption? department) async {
+    setState(() {
+      _selectedDepartment = department;
+      _selectedSection = null;
+      _sections = const [];
+      _errorText = null;
+    });
+
+    if (department == null || _selectedRole != 'Student') return;
+
+    setState(() => _isLoadingSections = true);
+    try {
+      final api = ref.read(apiClientProvider);
+      final items = await api.getSections(departmentId: department.id);
+      if (!mounted) return;
+
+      setState(() {
+        _sections = items.map(_SectionOption.fromJson).toList();
+        _isLoadingSections = false;
+      });
+    } on ApiException catch (error) {
+      if (!mounted) return;
+      setState(() {
+        _errorText = error.message;
+        _isLoadingSections = false;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _errorText = 'Could not load sections for this department.';
+        _isLoadingSections = false;
+      });
+    }
+  }
+
   Future<void> _register() async {
     final name = _nameController.text.trim();
     final email = _emailController.text.trim();
     final password = _passwordController.text;
-    final departmentId = _departmentController.text.trim();
     final identifier = _identifierController.text.trim();
+    final isStudent = _selectedRole == 'Student';
 
-    if ([
-      name,
-      email,
-      password,
-      departmentId,
-      identifier,
-    ].any((value) => value.isEmpty)) {
+    if ([name, email, password].any((value) => value.isEmpty) ||
+        _selectedDepartment == null ||
+        (isStudent && (identifier.isEmpty || _selectedSection == null))) {
       setState(() => _errorText = 'Fill all registration fields.');
       return;
     }
@@ -95,7 +180,15 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
     try {
       final api = ref.read(apiClientProvider);
-      await api.register(email: email, password: password, role: _selectedRole);
+      await api.register(
+        email: email,
+        password: password,
+        role: _selectedRole,
+        name: name,
+        departmentId: _selectedDepartment!.id,
+        rollNo: isStudent ? identifier : null,
+        sectionId: isStudent ? _selectedSection!.id : null,
+      );
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -121,13 +214,20 @@ class _RegisterFormCard extends StatelessWidget {
     required this.nameController,
     required this.emailController,
     required this.passwordController,
-    required this.departmentController,
     required this.identifierController,
     required this.selectedRole,
+    required this.departments,
+    required this.sections,
+    required this.selectedDepartment,
+    required this.selectedSection,
     required this.obscurePassword,
     required this.isLoading,
+    required this.isLoadingDepartments,
+    required this.isLoadingSections,
     required this.errorText,
     required this.onRoleSelected,
+    required this.onDepartmentSelected,
+    required this.onSectionSelected,
     required this.onTogglePassword,
     required this.onRegister,
   });
@@ -135,13 +235,20 @@ class _RegisterFormCard extends StatelessWidget {
   final TextEditingController nameController;
   final TextEditingController emailController;
   final TextEditingController passwordController;
-  final TextEditingController departmentController;
   final TextEditingController identifierController;
   final String selectedRole;
+  final List<_DepartmentOption> departments;
+  final List<_SectionOption> sections;
+  final _DepartmentOption? selectedDepartment;
+  final _SectionOption? selectedSection;
   final bool obscurePassword;
   final bool isLoading;
+  final bool isLoadingDepartments;
+  final bool isLoadingSections;
   final String? errorText;
   final ValueChanged<String> onRoleSelected;
+  final ValueChanged<_DepartmentOption?> onDepartmentSelected;
+  final ValueChanged<_SectionOption?> onSectionSelected;
   final VoidCallback onTogglePassword;
   final VoidCallback onRegister;
 
@@ -237,28 +344,76 @@ class _RegisterFormCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: AppSpacing.md),
-          TextField(
-            controller: departmentController,
-            enabled: !isLoading,
-            keyboardType: TextInputType.number,
-            decoration: const InputDecoration(
-              labelText: 'Department ID',
-              prefixIcon: Icon(Icons.account_tree_rounded),
+          DropdownButtonFormField<_DepartmentOption>(
+            initialValue: selectedDepartment,
+            items: departments
+                .map(
+                  (department) => DropdownMenuItem(
+                    value: department,
+                    child: Text(department.label),
+                  ),
+                )
+                .toList(),
+            onChanged: isLoading || isLoadingDepartments
+                ? null
+                : onDepartmentSelected,
+            decoration: InputDecoration(
+              labelText: 'Department',
+              prefixIcon: const Icon(Icons.account_tree_rounded),
+              suffixIcon: isLoadingDepartments
+                  ? const Padding(
+                      padding: EdgeInsets.all(14),
+                      child: SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
+                    )
+                  : null,
             ),
           ),
           const SizedBox(height: AppSpacing.md),
-          TextField(
-            controller: identifierController,
-            enabled: !isLoading,
-            decoration: InputDecoration(
-              labelText: isStudent ? 'Roll Number' : 'Faculty ID',
-              prefixIcon: Icon(
-                isStudent
-                    ? Icons.confirmation_number_rounded
-                    : Icons.work_rounded,
+          if (isStudent) ...[
+            DropdownButtonFormField<_SectionOption>(
+              initialValue: selectedSection,
+              items: sections
+                  .map(
+                    (section) => DropdownMenuItem(
+                      value: section,
+                      child: Text(section.label),
+                    ),
+                  )
+                  .toList(),
+              onChanged:
+                  isLoading || isLoadingSections || selectedDepartment == null
+                  ? null
+                  : onSectionSelected,
+              decoration: InputDecoration(
+                labelText: 'Year and Section',
+                prefixIcon: const Icon(Icons.groups_rounded),
+                suffixIcon: isLoadingSections
+                    ? const Padding(
+                        padding: EdgeInsets.all(14),
+                        child: SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        ),
+                      )
+                    : null,
               ),
             ),
-          ),
+            const SizedBox(height: AppSpacing.md),
+          ],
+          if (isStudent)
+            TextField(
+              controller: identifierController,
+              enabled: !isLoading,
+              decoration: const InputDecoration(
+                labelText: 'Roll Number',
+                prefixIcon: Icon(Icons.confirmation_number_rounded),
+              ),
+            ),
           if (errorText != null) ...[
             const SizedBox(height: AppSpacing.md),
             _RegisterErrorBanner(message: errorText!),
@@ -343,13 +498,14 @@ class _RegisterInfoPanel extends StatelessWidget {
           _RegisterInfoRow(
             icon: Icons.school_rounded,
             title: 'Student profile',
-            subtitle: 'Creates a user with roll number, name, and department.',
+            subtitle:
+                'Creates a user with name, roll number, department, and section.',
           ),
           SizedBox(height: AppSpacing.md),
           _RegisterInfoRow(
             icon: Icons.workspace_premium_rounded,
             title: 'Faculty profile',
-            subtitle: 'Creates a user with faculty id, name, and department.',
+            subtitle: 'Creates a user with faculty name and department.',
           ),
           SizedBox(height: AppSpacing.md),
           _RegisterInfoRow(
@@ -414,6 +570,50 @@ class _RegisterInfoRow extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _DepartmentOption {
+  const _DepartmentOption({
+    required this.id,
+    required this.name,
+    required this.code,
+  });
+
+  final int id;
+  final String name;
+  final String code;
+
+  String get label => code.isEmpty ? name : '$name ($code)';
+
+  factory _DepartmentOption.fromJson(Map<String, dynamic> json) {
+    return _DepartmentOption(
+      id: json['department_id'] as int,
+      name: json['department_name']?.toString() ?? 'Department',
+      code: json['department_code']?.toString() ?? '',
+    );
+  }
+}
+
+class _SectionOption {
+  const _SectionOption({
+    required this.id,
+    required this.year,
+    required this.name,
+  });
+
+  final int id;
+  final int year;
+  final String name;
+
+  String get label => 'Year $year - Section $name';
+
+  factory _SectionOption.fromJson(Map<String, dynamic> json) {
+    return _SectionOption(
+      id: json['section_id'] as int,
+      year: json['year_number'] as int,
+      name: json['section_name']?.toString() ?? '',
     );
   }
 }

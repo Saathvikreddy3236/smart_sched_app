@@ -13,6 +13,7 @@ class FakeApiClient extends ApiClient {
   Future<Map<String, dynamic>> login({
     required String email,
     required String password,
+    required String role,
   }) async {
     return {
       'access': 'test-access',
